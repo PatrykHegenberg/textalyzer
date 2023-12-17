@@ -4,15 +4,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 public class OpenAiProcessorGUI {
     private JFrame frame;
-    private JTextField filePathTextField;
-    private JTextField apiKeyTextField;
+    private String apiKey;
     private JTextArea resultTextArea;
 
     public OpenAiProcessorGUI() {
+        initialize();
+    }
+
+    public OpenAiProcessorGUI(String apiKey) {
+        this.apiKey = apiKey;
         initialize();
     }
 
@@ -25,19 +30,13 @@ public class OpenAiProcessorGUI {
         JPanel inputPanel = new JPanel();
         frame.getContentPane().add(inputPanel, BorderLayout.NORTH);
 
-        JLabel filePathLabel = new JLabel("File Path:");
-        inputPanel.add(filePathLabel);
-
-        filePathTextField = new JTextField();
-        inputPanel.add(filePathTextField);
-        filePathTextField.setColumns(20);
-
-        JLabel apiKeyLabel = new JLabel("API Key:");
-        inputPanel.add(apiKeyLabel);
-
-        apiKeyTextField = new JTextField();
-        inputPanel.add(apiKeyTextField);
-        apiKeyTextField.setColumns(20);
+        JButton fileChooserButton = new JButton("Choose File");
+        inputPanel.add(fileChooserButton);
+        fileChooserButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                chooseFile();
+            }
+        });
 
         JButton processButton = new JButton("Process");
         inputPanel.add(processButton);
@@ -54,12 +53,21 @@ public class OpenAiProcessorGUI {
         resultScrollPane.setViewportView(resultTextArea);
     }
 
-    private void processFile() {
-        String filePath = filePathTextField.getText();
-        String apiKey = apiKeyTextField.getText();
+    private void chooseFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(frame);
 
-        if (filePath.isEmpty() || apiKey.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Please enter both file path and API key.");
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            resultTextArea.setText(selectedFile.getAbsolutePath());
+        }
+    }
+
+    private void processFile() {
+        String filePath = resultTextArea.getText();
+
+        if (filePath.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Please choose a file.");
             return;
         }
 
@@ -76,7 +84,7 @@ public class OpenAiProcessorGUI {
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -87,5 +95,18 @@ public class OpenAiProcessorGUI {
                 }
             }
         });
-    }
+    }*/
+    public static void main(String[] args) {
+    SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+            try {
+                String apiKey = "YOUR_API_KEY_HERE"; // Ersetze dies durch deinen OpenAI API-Schlüssel
+                OpenAiProcessorGUI window = new OpenAiProcessorGUI(apiKey);
+                window.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
 }
